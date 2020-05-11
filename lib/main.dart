@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-// Primary Color
-const Color _primaryColor = Color.fromARGB(255, 255, 136, 0);
+import 'package:sport_app/pages/home_page.dart';
 
 void main() => runApp(App());
 
@@ -15,12 +13,28 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      home: HomePage(),
+      home: Home(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
+class Home extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _HomeState();
+  }
+}
+
+class _HomeState extends State<Home> {
+  int _currentIndex = 0;
+  final List<Widget> _children = [HomePage(),HomePage(),HomePage()];
+
+  void onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,8 +48,10 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0.0,
       ),
+      body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
+        onTap: onTabTapped,
+        currentIndex: _currentIndex,
         items: [
           BottomNavigationBarItem(
             icon: new Icon(Icons.home),
@@ -49,74 +65,6 @@ class HomePage extends StatelessWidget {
               icon: Icon(Icons.people), title: Text('Amigos'))
         ],
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-          future:
-              Firestore.instance.document('/users/OUDFzPPc1AFNMvLUHOQQ').get(),
-          //future: Firestore.instance.collection('users').document('OUDFzPPc1AFNMvLUHOQQ').get(),
-          builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            if (!snapshot.hasData) {
-              return Center(child: CircularProgressIndicator());
-            }
-            final DocumentSnapshot doc = snapshot.data;
-            Map<String, dynamic> user = doc.data;
-            return SafeArea(
-              child: Stack(
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          Column(
-                            children: <Widget>[
-                              Text('5',
-                                  style: TextStyle(
-                                    fontSize: 30,
-                                  )),
-                              Text('Entrenamentos realizados'),
-                            ],
-                          ),
-                          Container(
-                            height: 70,
-                            child: VerticalDivider(
-                              color: Colors.black,
-                              width: 10,
-                              thickness: 1,
-                              indent: 10,
-                              endIndent: 10,
-                            ),
-                          ),
-                          Column(
-                            children: <Widget>[
-                              Text('1',
-                                  style: TextStyle(
-                                    fontSize: 30,
-                                  )),
-                              Text('Retos realizados'),
-                            ],
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Column(
-                            children: <Widget>[
-                              Row(
-                                children: <Widget>[
-                                  Text('Entrenamiento 1'),
-                                ],
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }),
     );
   }
 }
