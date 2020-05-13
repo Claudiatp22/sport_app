@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sport_app/pages/amigos_page.dart';
 import 'package:sport_app/pages/home_page.dart';
+import 'package:sport_app/pages/retos_page.dart';
 
 void main() => runApp(App());
 
@@ -8,7 +10,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Github funciona!',
+      title: 'Fitwiz',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.orange,
@@ -27,7 +29,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-  final List<Widget> _children = [HomePage(),HomePage(),HomePage()];
+  final List<Widget> _children = [HomePage(),RetosPage(),AmigosPage()];
+  List<String> _titles = ["Entrenamientos", "Retos", "Amigos"];
 
   void onTabTapped(int index) {
     setState(() {
@@ -40,7 +43,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Entrenamientos',
+          _titles[_currentIndex],
           style: TextStyle(
             color: Colors.black,
           ),
@@ -68,5 +71,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-//Text(user['fullName']),
