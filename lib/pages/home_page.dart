@@ -3,8 +3,22 @@ import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
   Widget _buildList(BuildContext context, DocumentSnapshot document) {
-    return ListTile(
-      title: Text(document['name']),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: Image.network(
+            document['urlImage'],
+          ).image,
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(document['name']),
+          Icon(Icons.send),
+        ],
+      ),
     );
   }
 
@@ -56,9 +70,12 @@ class HomePage extends StatelessWidget {
                         ),
                       ],
                     ),
+                    SizedBox(
+                      height: 20,
+                    ),
                     Expanded(
                       child: ListView.builder(
-                        itemExtent: 80.0,
+                        itemExtent: 120.0,
                         itemCount: 5,
                         itemBuilder: (context, index) {
                           return _buildList(
