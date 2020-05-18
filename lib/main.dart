@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:sport_app/pages/amigos_page.dart';
-import 'package:sport_app/pages/home_page.dart';
-import 'package:sport_app/pages/retos_page.dart';
+import 'package:sports_app/pages/amigos_page.dart';
+import 'package:sports_app/pages/home_page.dart';
+import 'package:sports_app/pages/retos_page.dart';
 
 void main() => runApp(App());
 
