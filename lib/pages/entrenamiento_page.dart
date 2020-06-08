@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 class EntrenamientoPage extends StatefulWidget {
   @override
@@ -31,7 +32,7 @@ class EntrenamientoPageState extends State<EntrenamientoPage> {
                         itemCount: 5,
                         itemBuilder: (context, index) {
                           return _buildList(
-                              context, map.values.toList()[index]);
+                              context, map.values.toList()[index], index, map);
                         },
                       ),
                     ),
@@ -45,7 +46,8 @@ class EntrenamientoPageState extends State<EntrenamientoPage> {
     );
   }
 
-  Widget _buildList(BuildContext context, Map<String, dynamic> step) {
+  Widget _buildList(BuildContext context, Map<String, dynamic> step, int index,
+      Map<String, dynamic> steps) {
     return Container(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
@@ -96,6 +98,14 @@ class EntrenamientoPageState extends State<EntrenamientoPage> {
                           fontWeight: FontWeight.w400,
                         ),
                       ),
+                      Text(
+                        index.toString(),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -104,8 +114,25 @@ class EntrenamientoPageState extends State<EntrenamientoPage> {
             Row(
               children: <Widget>[
                 Expanded(
-                  child: ProgressIndicatorDemo(time: step["time"]),
+                  child: ProgressIndicatorDemo(
+                      time: step["time"],
+                      i: index,
+                      previousItem: steps),
                 ),
+                /*if (index == 0)
+                Expanded(
+                  child: ProgressIndicatorDemo(
+                      time: step["time"],
+                      i: index,
+                      previousItem: steps.values.toList()[index]),
+                ),
+                if (index >= 1)
+                Expanded(
+                  child: ProgressIndicatorDemo(
+                      time: step["time"],
+                      i: index,
+                      previousItem: steps.values.toList()[index-1]),
+                ),*/
               ],
             )
           ],
@@ -117,10 +144,11 @@ class EntrenamientoPageState extends State<EntrenamientoPage> {
 
 class ProgressIndicatorDemo extends StatefulWidget {
   final int time;
+  final int i;
+  final Map<String, dynamic> previousItem;
 
-  ProgressIndicatorDemo({
-        @required this.time,
-    });
+  ProgressIndicatorDemo(
+      {@required this.time, @required this.i, @required this.previousItem});
 
   @override
   _ProgressIndicatorDemoState createState() =>
@@ -133,20 +161,71 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
   Animation<double> animation;
 
   int _duration;
+  int _index;
+  Map<String, dynamic> _previous;
+  //_previous.values.toList()[index]
+
+  int _istate = 0;
 
   @override
   void initState() {
     super.initState();
     _duration = widget.time;
-    controller = AnimationController(
-        duration: Duration(seconds: _duration), vsync: this);
+    _index = widget.i;
+    _previous = widget.previousItem;
+    controller =
+        AnimationController(duration: Duration(seconds: _duration), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller)
       ..addListener(() {
         setState(() {
           // the state that has changed here is the animation object’s value
         });
       });
-    controller.repeat();
+    if (_index == 0) {
+      controller.forward();
+      print('entro. index: $_index');
+      /*controller.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          print('acaba. index: $_index');
+          setState(() {
+            this._istate++;
+          });
+        }
+      });*/
+    }
+
+    if (_index == 1) {
+      print('entro. index: $_index');
+      int counter = _previous.values.toList()[0]["time"];
+      Future.delayed(Duration(seconds: counter), () {
+        controller.forward();
+      });
+    }
+
+    if (_index == 2) {
+      print('entro. index: $_index');
+      int counter = _previous.values.toList()[0]["time"] + _previous.values.toList()[1]["time"];
+      Future.delayed(Duration(seconds: counter), () {
+        controller.forward();
+      });
+    }
+
+    if (_index == 3) {
+      print('entro. index: $_index');
+      int counter = _previous.values.toList()[0]["time"] + _previous.values.toList()[1]["time"] + _previous.values.toList()[2]["time"];
+      Future.delayed(Duration(seconds: counter), () {
+        controller.forward();
+      });
+    }
+
+    if (_index == 4) {
+      print('entro. index: $_index');
+      int counter = _previous.values.toList()[0]["time"] + _previous.values.toList()[1]["time"] + _previous.values.toList()[2]["time"] + _previous.values.toList()[3]["time"];
+      Future.delayed(Duration(seconds:counter), () {
+        controller.forward();
+      });
+    }
+
   }
 
   @override
@@ -155,50 +234,29 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
     super.dispose();
   }
 
+  startProgress() {
+    controller.forward();
+  }
+
+  stopProgress() {
+    controller.stop();
+  }
+
+  resetProgress() {
+    controller.reset();
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Center(
-        child: new Container(
-      child: LinearProgressIndicator(
-        value: animation.value,
-        backgroundColor: Colors.grey[300],
+      child: new Container(
+        child: LinearProgressIndicator(
+          value: animation.value,
+          backgroundColor: Colors.grey[300],
+        ),
       ),
-    ),);
+    );
   }
 }
 
-/*LinearProgressIndicator(
-                    value: 0.5, // percent filled
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
-                    backgroundColor: Colors.grey[300],
-                  ),*/
-
-//return _buildList(context, snapshot.data['steps'][index]);
-
-//return Text(snapshot.data['steps'][index]['name']);
-
 // return Text(map.values.toList()[index]["name"]);
-
-/*Container(
-                            child: Padding(
-                              padding: const EdgeInsets.all(30.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    map.values.toList()[index]["name"],
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.send,
-                                    color: Colors.white,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );*/
