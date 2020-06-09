@@ -1,37 +1,52 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sports_app/pages/entrenamiento_page.dart';
 
 class HomePage extends StatelessWidget {
   Widget _buildList(BuildContext context, DocumentSnapshot document) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black,
-        image: DecorationImage(
-          image: Image.network(
-            document['urlImage'],
-          ).image,
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.dstATop),
+    return InkWell(
+      onTap: () {
+        Navigator.of(context)
+            .push(
+          MaterialPageRoute(
+            builder: (context) => EntrenamientoPage(entrenamientoId: document.documentID),
+          ),
+        )
+            .then((result) {
+          //_addCounter(result);
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black,
+          image: DecorationImage(
+            image: Image.network(
+              document['urlImage'],
+            ).image,
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.5), BlendMode.dstATop),
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text(
-              document['name'],
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+        child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(
+                document['name'],
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            Icon(
-              Icons.send,
-              color: Colors.white,
-            ),
-          ],
+              Icon(
+                Icons.send,
+                color: Colors.white,
+              ),
+            ],
+          ),
         ),
       ),
     );
