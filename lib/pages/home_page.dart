@@ -3,13 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sports_app/pages/entrenamiento_page.dart';
 
-//Map<String, dynamic> training
-
 class HomePage extends StatelessWidget {
   _addEntrenamiento(String id) {
-    //var _training = training.values.toList();
-    //print('training. $_training');
-
     final CollectionReference userTrainings = Firestore.instance
         .collection('users')
         .document('OUDFzPPc1AFNMvLUHOQQ')
@@ -17,11 +12,14 @@ class HomePage extends StatelessWidget {
 
     Map<String, dynamic> data = new Map<String, dynamic>();
     data["id"] = id;
-    //userTrainings.document(id).setData(data, merge: false);
+
     userTrainings.document().setData(data);
   }
 
   Widget _buildList(BuildContext context, DocumentSnapshot document) {
+    DocumentSnapshot mainUser = Provider.of<DocumentSnapshot>(context);
+    Map<String, dynamic> user = mainUser.data;
+
     return InkWell(
       onTap: () {
         Navigator.of(context)
@@ -62,9 +60,14 @@ class HomePage extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              Icon(
-                Icons.send,
-                color: Colors.white,
+              IconButton(
+                icon: Icon(
+                  Icons.send,
+                  color: Colors.white,
+                ),
+                onPressed: () => {
+                  showSimpleCustomDialog(context, mainUser, document.documentID)
+                },
               ),
             ],
           ),
@@ -73,10 +76,104 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  void showSimpleCustomDialog(
+      BuildContext context, DocumentSnapshot mainUser, String trainingId) {
+    Map<String, dynamic> user = mainUser.data;
+
+    _sendChallenge(int index) {
+      final CollectionReference userChallenges = Firestore.instance
+          .collection('users')
+          .document(user['friends'][index])
+          .collection('challenges');
+
+      Map<String, dynamic> data = new Map<String, dynamic>();
+      data["challengerId"] = mainUser.documentID;
+      data["trainingId"] = trainingId;
+      userChallenges.document().setData(data);
+    }
+
+    Dialog simpleDialog = Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Container(
+        height: 300.0,
+        width: 300.0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.fromLTRB(10, 20, 10, 15.0),
+              child: Text(
+                '¡Reta a uno de tus amigos!',
+                style: TextStyle(
+                    color: Colors.orange,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700),
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemExtent: 60.0,
+                itemCount: user['friends'].length,
+                itemBuilder: (context, index) {
+                  return StreamBuilder(
+                    stream: Firestore.instance
+                        .collection('users')
+                        .document(user['friends'][index])
+                        .snapshots(),
+                    builder: (context, userSnapshot) {
+                      if (!userSnapshot.hasData) {
+                        return Text("Loading...");
+                      }
+                      DocumentSnapshot doc = userSnapshot.data;
+                      Map<String, dynamic> userData = doc.data;
+                      return GestureDetector(
+                        onTap: () {
+                          _sendChallenge(index);
+                          Navigator.of(context).pop();
+                        },
+                        child: Container(
+                          child: ListTile(
+                            title: Text(userData['fullname']),
+                            leading: Icon(Icons.account_circle),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  RaisedButton(
+                    color: Colors.grey,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'Cancelar',
+                      style: TextStyle(fontSize: 16.0, color: Colors.white),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    showDialog(
+        context: context, builder: (BuildContext context) => simpleDialog);
+  }
+
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> user = Provider.of<Map<String, dynamic>>(context);
-
     return Scaffold(
       body: StreamBuilder(
         stream: Firestore.instance.collection('trainings').snapshots(),
@@ -116,12 +213,6 @@ class HomePage extends StatelessWidget {
                                     );
                                   }
                                 }),
-                            /*Text(
-                              user['fullName'],
-                              style: TextStyle(
-                                fontSize: 30,
-                              ),
-                            ),*/
                             Text('Entrenamentos realizados'),
                           ],
                         ),
@@ -158,10 +249,6 @@ class HomePage extends StatelessWidget {
                                     );
                                   }
                                 }),
-                            /*Text('1',
-                                style: TextStyle(
-                                  fontSize: 30,
-                                )),*/
                             Text('Retos realizados'),
                           ],
                         ),

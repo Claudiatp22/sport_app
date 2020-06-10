@@ -1,28 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sports_app/pages/entrenamiento_page.dart';
 
 class RetosPage extends StatelessWidget {
-
-
-  Widget _buildList(BuildContext context, DocumentSnapshot document) {
-    _challengeDone() {
-      /*check adding Id to user trainings
-        Firestore.instance
-          .collection('users')
-          .document('OUDFzPPc1AFNMvLUHOQQ')
-          .collection('trainings')
-          .add('trainingId');
-          */
-    }
+  Widget _buildList(BuildContext context, DocumentSnapshot document, String challengeID) {
     _deleteChallenge() {
-      //check challengeDocumentId
-        Firestore.instance
+      final CollectionReference userChallenges = Firestore.instance
           .collection('users')
           .document('OUDFzPPc1AFNMvLUHOQQ')
-          .collection('challenges')
-          .document('challengeDocumentId')
-          .delete();
+          .collection('challenges');
+
+      userChallenges.document(challengeID).delete();
     }
+
+    _addEntrenamiento(String id) {
+      final CollectionReference userTrainings = Firestore.instance
+          .collection('users')
+          .document('OUDFzPPc1AFNMvLUHOQQ')
+          .collection('trainings');
+
+      Map<String, dynamic> data = new Map<String, dynamic>();
+      data["id"] = id;
+      userTrainings.document().setData(data);
+
+      _deleteChallenge();
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.black,
@@ -31,7 +34,8 @@ class RetosPage extends StatelessWidget {
             document['urlImage'],
           ).image,
           fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.dstATop),
+          colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(0.5), BlendMode.dstATop),
         ),
       ),
       child: Padding(
@@ -52,11 +56,25 @@ class RetosPage extends StatelessWidget {
                 Icons.done,
                 color: Colors.white,
               ),
-              onPressed: () => _challengeDone(),
+              onPressed: () => {
+                Navigator.of(context)
+                    .push(
+                  MaterialPageRoute(
+                    builder: (context) => EntrenamientoPage(
+                        entrenamientoId: document.documentID,
+                        name: document['name']),
+                  ),
+                )
+                    .then((result) {
+                  if (result != null) {
+                    _addEntrenamiento(result);
+                  }
+                })
+              },
             ),
             IconButton(
               icon: Icon(
-                Icons.remove,
+                Icons.close,
                 color: Colors.white,
               ),
               onPressed: () => _deleteChallenge(),
@@ -71,7 +89,11 @@ class RetosPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder(
-        stream: Firestore.instance.collection('users').document('OUDFzPPc1AFNMvLUHOQQ').collection('challenges').snapshots(),
+        stream: Firestore.instance
+            .collection('users')
+            .document('OUDFzPPc1AFNMvLUHOQQ')
+            .collection('challenges')
+            .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Text("Loading...");
@@ -81,21 +103,24 @@ class RetosPage extends StatelessWidget {
               children: <Widget>[
                 Column(
                   children: <Widget>[
-                    SizedBox(
-                      height: 20,
-                    ),
                     Expanded(
                       child: ListView.builder(
                         itemExtent: 120.0,
-                        itemCount: 5,
+                        itemCount: snapshot.data.documents.length,
                         itemBuilder: (context, index) {
                           return StreamBuilder(
-                            stream: Firestore.instance.collection('trainings').document(snapshot.data.documents[index]['trainingId']).snapshots(),
-                            builder: (context, trainingSnapshot) {
-                              return _buildList(
-                                context, trainingSnapshot.data.documents[index]);
-                            }
-                          );
+                              stream: Firestore.instance
+                                  .collection('trainings')
+                                  .document(snapshot.data.documents[index]
+                                      ['trainingId'])
+                                  .snapshots(),
+                              builder: (context, trainingSnapshot) {
+                                if (!trainingSnapshot.hasData) {
+                                  return Text("Loading...");
+                                }
+                                return _buildList(
+                                    context, trainingSnapshot.data, snapshot.data.documents[index].documentID);
+                              });
                         },
                       ),
                     ),

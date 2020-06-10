@@ -37,10 +37,11 @@ class App extends StatelessWidget {
           // Què fem mentre carrega...
         }
         DocumentSnapshot doc = snapshot.data;
+        //print(doc.documentID);
         // User user = User(doc);
         Map<String, dynamic> userData = doc.data;
         return Provider.value(
-          value: userData,
+          value: doc,
           builder: (context, widget) {
             return MaterialApp(
               title: 'Fitwiz',
