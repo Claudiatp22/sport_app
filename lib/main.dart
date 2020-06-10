@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:sports_app/pages/amigos_page.dart';
 import 'package:sports_app/pages/home_page.dart';
 import 'package:sports_app/pages/retos_page.dart';
-import 'package:sports_app/pages/entrenamiento_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // https://github.com/minidosis/flutter_firebase_auth
@@ -71,9 +70,8 @@ class _HomeState extends State<Home> {
     HomePage(),
     RetosPage(),
     AmigosPage(),
-    EntrenamientoPage(),
   ];
-  List<String> _titles = ["Entrenamientos", "Retos", "Amigos", "Entrenamiento"];
+  List<String> _titles = ["Entrenamientos", "Retos", "Amigos"];
 
   void onTabTapped(int index) {
     setState(() {
@@ -106,10 +104,6 @@ class _HomeState extends State<Home> {
           BottomNavigationBarItem(
             icon: new Icon(Icons.star),
             title: new Text('Retos'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            title: Text('Amigos'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people),

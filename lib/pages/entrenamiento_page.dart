@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-//import 'dart:io';
 
 class EntrenamientoPage extends StatefulWidget {
   final String entrenamientoId;
+  final String name;
 
-  EntrenamientoPage({@required this.entrenamientoId});
+  EntrenamientoPage({@required this.entrenamientoId, @required this.name});
 
   @override
   EntrenamientoPageState createState() => new EntrenamientoPageState();
@@ -13,16 +13,28 @@ class EntrenamientoPage extends StatefulWidget {
 
 class EntrenamientoPageState extends State<EntrenamientoPage> {
   String _id;
+  String _name;
 
   @override
   void initState() {
     super.initState();
     _id = widget.entrenamientoId;
+    _name = widget.name;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          _name,
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0.0,
+      ),
       body: StreamBuilder(
         stream: Firestore.instance
             .collection('trainings')
@@ -110,14 +122,6 @@ class EntrenamientoPageState extends State<EntrenamientoPage> {
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      Text(
-                        index.toString(),
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -127,22 +131,11 @@ class EntrenamientoPageState extends State<EntrenamientoPage> {
               children: <Widget>[
                 Expanded(
                   child: ProgressIndicatorDemo(
-                      time: step["time"], i: index, previousItem: steps),
-                ),
-                /*if (index == 0)
-                Expanded(
-                  child: ProgressIndicatorDemo(
                       time: step["time"],
                       i: index,
-                      previousItem: steps.values.toList()[index]),
+                      previousItem: steps,
+                      id: _id),
                 ),
-                if (index >= 1)
-                Expanded(
-                  child: ProgressIndicatorDemo(
-                      time: step["time"],
-                      i: index,
-                      previousItem: steps.values.toList()[index-1]),
-                ),*/
               ],
             )
           ],
@@ -156,9 +149,13 @@ class ProgressIndicatorDemo extends StatefulWidget {
   final int time;
   final int i;
   final Map<String, dynamic> previousItem;
+  final String id;
 
   ProgressIndicatorDemo(
-      {@required this.time, @required this.i, @required this.previousItem});
+      {@required this.time,
+      @required this.i,
+      @required this.previousItem,
+      @required this.id});
 
   @override
   _ProgressIndicatorDemoState createState() =>
@@ -173,9 +170,8 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
   int _duration;
   int _index;
   Map<String, dynamic> _previous;
-  //_previous.values.toList()[index]
-
-  //int _istate = 0;
+  String _id;
+  bool _done = false;
 
   @override
   void initState() {
@@ -183,17 +179,20 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
     _duration = widget.time;
     _index = widget.i;
     _previous = widget.previousItem;
+    _id = widget.id;
+
     controller = AnimationController(
         duration: Duration(seconds: _duration), vsync: this);
     animation = Tween(begin: 0.0, end: 1.0).animate(controller)
       ..addListener(() {
-        setState(() {
-          // the state that has changed here is the animation object’s value
-        });
+        if (this.mounted) {
+          setState(() {
+          });
+        }
       });
+
     if (_index == 0) {
       controller.forward();
-      print('entro. index: $_index');
       /*controller.addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           print('acaba. index: $_index');
@@ -205,7 +204,6 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
     }
 
     if (_index == 1) {
-      print('entro. index: $_index');
       int counter = _previous.values.toList()[0]["time"];
       Future.delayed(Duration(seconds: counter), () {
         controller.forward();
@@ -213,7 +211,6 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
     }
 
     if (_index == 2) {
-      print('entro. index: $_index');
       int counter = _previous.values.toList()[0]["time"] +
           _previous.values.toList()[1]["time"];
       Future.delayed(Duration(seconds: counter), () {
@@ -222,7 +219,6 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
     }
 
     if (_index == 3) {
-      print('entro. index: $_index');
       int counter = _previous.values.toList()[0]["time"] +
           _previous.values.toList()[1]["time"] +
           _previous.values.toList()[2]["time"];
@@ -232,13 +228,18 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
     }
 
     if (_index == 4) {
-      print('entro. index: $_index');
       int counter = _previous.values.toList()[0]["time"] +
           _previous.values.toList()[1]["time"] +
           _previous.values.toList()[2]["time"] +
           _previous.values.toList()[3]["time"];
       Future.delayed(Duration(seconds: counter), () {
         controller.forward();
+        Future.delayed(Duration(seconds: _duration), () {
+          _done = true;
+          if (_done == true) {
+            Navigator.of(context).pop(_id);
+          }
+        });
       });
     }
   }

@@ -1,19 +1,40 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sports_app/pages/entrenamiento_page.dart';
 
+//Map<String, dynamic> training
+
 class HomePage extends StatelessWidget {
+  _addEntrenamiento(String id) {
+    //var _training = training.values.toList();
+    //print('training. $_training');
+
+    final CollectionReference userTrainings = Firestore.instance
+        .collection('users')
+        .document('OUDFzPPc1AFNMvLUHOQQ')
+        .collection('trainings');
+
+    Map<String, dynamic> data = new Map<String, dynamic>();
+    data["id"] = id;
+    //userTrainings.document(id).setData(data, merge: false);
+    userTrainings.document().setData(data);
+  }
+
   Widget _buildList(BuildContext context, DocumentSnapshot document) {
     return InkWell(
       onTap: () {
         Navigator.of(context)
             .push(
           MaterialPageRoute(
-            builder: (context) => EntrenamientoPage(entrenamientoId: document.documentID),
+            builder: (context) => EntrenamientoPage(
+                entrenamientoId: document.documentID, name: document['name']),
           ),
         )
             .then((result) {
-          //_addCounter(result);
+          if (result != null) {
+            _addEntrenamiento(result);
+          }
         });
       },
       child: Container(
@@ -54,6 +75,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic> user = Provider.of<Map<String, dynamic>>(context);
+
     return Scaffold(
       body: StreamBuilder(
         stream: Firestore.instance.collection('trainings').snapshots(),
@@ -72,10 +95,33 @@ class HomePage extends StatelessWidget {
                       children: <Widget>[
                         Column(
                           children: <Widget>[
-                            Text('5',
-                                style: TextStyle(
-                                  fontSize: 30,
-                                )),
+                            StreamBuilder<QuerySnapshot>(
+                                stream: Firestore.instance
+                                    .collection('users')
+                                    .document('OUDFzPPc1AFNMvLUHOQQ')
+                                    .collection('trainings')
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return Text("Loading...");
+                                  } else {
+                                    QuerySnapshot querySnap = snapshot.data;
+                                    final numberOfDocs =
+                                        querySnap.documents.length;
+                                    return Text(
+                                      numberOfDocs.toString(),
+                                      style: TextStyle(
+                                        fontSize: 30,
+                                      ),
+                                    );
+                                  }
+                                }),
+                            /*Text(
+                              user['fullName'],
+                              style: TextStyle(
+                                fontSize: 30,
+                              ),
+                            ),*/
                             Text('Entrenamentos realizados'),
                           ],
                         ),
@@ -91,10 +137,31 @@ class HomePage extends StatelessWidget {
                         ),
                         Column(
                           children: <Widget>[
-                            Text('1',
+                            StreamBuilder<QuerySnapshot>(
+                                stream: Firestore.instance
+                                    .collection('users')
+                                    .document('OUDFzPPc1AFNMvLUHOQQ')
+                                    .collection('challenges')
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return Text("Loading...");
+                                  } else {
+                                    QuerySnapshot querySnap = snapshot.data;
+                                    final numberOfDocs =
+                                        querySnap.documents.length;
+                                    return Text(
+                                      numberOfDocs.toString(),
+                                      style: TextStyle(
+                                        fontSize: 30,
+                                      ),
+                                    );
+                                  }
+                                }),
+                            /*Text('1',
                                 style: TextStyle(
                                   fontSize: 30,
-                                )),
+                                )),*/
                             Text('Retos realizados'),
                           ],
                         ),
