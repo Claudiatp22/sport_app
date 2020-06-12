@@ -5,24 +5,7 @@ import 'package:sports_app/pages/home_page.dart';
 import 'package:sports_app/pages/retos_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// https://github.com/minidosis/flutter_firebase_auth
-
 void main() => runApp(App());
-
-/*class App extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Fitwiz',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
-      ),
-      home: Home(),
-    );
-  }
-}
-*/
 
 class App extends StatelessWidget {
   @override
@@ -34,12 +17,9 @@ class App extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          // Què fem mentre carrega...
+          return Text("Loading...");
         }
         DocumentSnapshot doc = snapshot.data;
-        //print(doc.documentID);
-        // User user = User(doc);
-        Map<String, dynamic> userData = doc.data;
         return Provider.value(
           value: doc,
           builder: (context, widget) {

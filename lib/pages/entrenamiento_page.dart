@@ -133,7 +133,7 @@ class EntrenamientoPageState extends State<EntrenamientoPage> {
                   child: ProgressIndicatorDemo(
                       time: step["time"],
                       i: index,
-                      previousItem: steps,
+                      steps: steps,
                       id: _id),
                 ),
               ],
@@ -148,13 +148,13 @@ class EntrenamientoPageState extends State<EntrenamientoPage> {
 class ProgressIndicatorDemo extends StatefulWidget {
   final int time;
   final int i;
-  final Map<String, dynamic> previousItem;
+  final Map<String, dynamic> steps;
   final String id;
 
   ProgressIndicatorDemo(
       {@required this.time,
       @required this.i,
-      @required this.previousItem,
+      @required this.steps,
       @required this.id});
 
   @override
@@ -169,7 +169,7 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
 
   int _duration;
   int _index;
-  Map<String, dynamic> _previous;
+  Map<String, dynamic> _steps;
   String _id;
   bool _done = false;
 
@@ -178,7 +178,7 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
     super.initState();
     _duration = widget.time;
     _index = widget.i;
-    _previous = widget.previousItem;
+    _steps = widget.steps;
     _id = widget.id;
 
     controller = AnimationController(
@@ -193,45 +193,37 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
 
     if (_index == 0) {
       controller.forward();
-      /*controller.addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          print('acaba. index: $_index');
-          setState(() {
-            this._istate++;
-          });
-        }
-      });*/
     }
 
     if (_index == 1) {
-      int counter = _previous.values.toList()[0]["time"];
+      int counter = _steps.values.toList()[0]["time"];
       Future.delayed(Duration(seconds: counter), () {
         controller.forward();
       });
     }
 
     if (_index == 2) {
-      int counter = _previous.values.toList()[0]["time"] +
-          _previous.values.toList()[1]["time"];
+      int counter = _steps.values.toList()[0]["time"] +
+          _steps.values.toList()[1]["time"];
       Future.delayed(Duration(seconds: counter), () {
         controller.forward();
       });
     }
 
     if (_index == 3) {
-      int counter = _previous.values.toList()[0]["time"] +
-          _previous.values.toList()[1]["time"] +
-          _previous.values.toList()[2]["time"];
+      int counter = _steps.values.toList()[0]["time"] +
+          _steps.values.toList()[1]["time"] +
+          _steps.values.toList()[2]["time"];
       Future.delayed(Duration(seconds: counter), () {
         controller.forward();
       });
     }
 
     if (_index == 4) {
-      int counter = _previous.values.toList()[0]["time"] +
-          _previous.values.toList()[1]["time"] +
-          _previous.values.toList()[2]["time"] +
-          _previous.values.toList()[3]["time"];
+      int counter = _steps.values.toList()[0]["time"] +
+          _steps.values.toList()[1]["time"] +
+          _steps.values.toList()[2]["time"] +
+          _steps.values.toList()[3]["time"];
       Future.delayed(Duration(seconds: counter), () {
         controller.forward();
         Future.delayed(Duration(seconds: _duration), () {
@@ -274,5 +266,3 @@ class _ProgressIndicatorDemoState extends State<ProgressIndicatorDemo>
     );
   }
 }
-
-// return Text(map.values.toList()[index]["name"]);

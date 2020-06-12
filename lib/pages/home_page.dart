@@ -18,7 +18,6 @@ class HomePage extends StatelessWidget {
 
   Widget _buildList(BuildContext context, DocumentSnapshot document) {
     DocumentSnapshot mainUser = Provider.of<DocumentSnapshot>(context);
-    Map<String, dynamic> user = mainUser.data;
 
     return InkWell(
       onTap: () {
